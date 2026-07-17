@@ -1,0 +1,52 @@
+name: Java Maven CI/CD Pipeline
+run-name: pipeline-${{ github.workflow }}-${{ github.ref_name }}-${{ github.run_number }}-${{ github.actor }}
+on:
+    push:
+        branches:
+            - "**"
+jobs:
+  Initialization_Job:
+    name: Initialization
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up output variables
+        id: set_outputs
+        run: echo "Setting up output variables for the workflow"
+    outputs:
+      gh_artifact_name: java-maven-artifact_${{ github.ref_name }}_${{ github.run_id }}
+      gh_artifact_path: |
+        **/*
+      java_version: "17"
+      java_distribution: "temurin"
+      maven_version: "3.9.6"
+      
+  Print_Logs_Job:
+    name: Print Logs and Debug Information
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print GitHub Event Log - Total Event Data
+        run: echo "${{ toJson(github) }}"
+
+      - name: Print Event Log Details
+        run: 'echo "Commit Person: ${{ github.event.head_commit.author.name }}" && echo "Commit Id: ${{ github.event.head_commit.id }}" && echo "Commit Message: ${{ github.event.head_commit.message }}"'
+
+      - name: print env variable
+        run: echo "${{ toJson(env) }}"
+
+      - name: print repository - organisation variable
+        run: echo "${{ toJson(vars) }}"
+    
+      - name: print current job details
+        run: echo "${{ toJson(secrets) }}"
+    
+      - name: print runner machine info
+        run: echo "${{ toJson(runner) }}"
+      
+      - name: print runner details
+        run: 'echo "Runner OS: ${{ runner.os }} && Runner Name: ${{ runner.name }} && Runner Temp: ${{ runner.temp }} && Runner Workspace: ${{ runner.workspace }}"'
+
+      - name: Print NEEDS Job Status log
+        run: echo "${{ toJson(needs) }}"
+
+      - name: Print JOB status log
+        run: echo "${{ toJson(job) }}"
