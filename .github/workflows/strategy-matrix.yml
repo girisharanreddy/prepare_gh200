@@ -22,10 +22,10 @@ jobs:
   produce-artifacts:
     runs-on: ubuntu-latest
     needs: define-matrix
+    name: Produce Artifacts - {{ matrix.color}}
     strategy:
       matrix:
         color: ${{ fromJSON(needs.define-matrix.outputs.colors) }}
-
     steps:
       - name: Define Color
         env:
@@ -43,6 +43,7 @@ jobs:
     needs:
         - define-matrix
         - produce-artifacts
+    name: Consume Artifacts - {{ matrix.color}}
     strategy:
       matrix:
         color: ${{ fromJSON(needs.define-matrix.outputs.colors) }}
@@ -51,7 +52,6 @@ jobs:
       uses: actions/download-artifact@v5
       with:
         name: ${{ matrix.color }}
-
     - name: Report Color
       run: |
         cat color
