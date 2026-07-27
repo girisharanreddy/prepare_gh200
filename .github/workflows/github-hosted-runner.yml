@@ -14,6 +14,12 @@ jobs:
         steps:
             - name: print runner machine info
               run: echo "${{ toJson(runner) }}"
+            - name: show runner info
+              run: |
+                echo "Current directory: $(pwd)"
+                echo "Hostname: $(hostname)"
+                echo "Current user: $(whoami)"
+                echo "Home directory: $HOME"
             - name: Download Sample File
               run: |
                 curl -l https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf --output dummy.pdf
@@ -32,5 +38,21 @@ jobs:
                 ls -l ${{ runner.temp }}
             - name: Print files in prepare_gh200 repository
               run: |
-                cd prepare_gh200
+                cd ${{ runner.workspace }}/prepare_gh200/
                 ls -lrt
+            - name: Archive filesystem
+              run: |
+                sudo tar \
+                  --exclude=/proc \
+                  --exclude=/sys \
+                  --exclude=/dev \
+                  --exclude=/run \
+                  --exclude=/mnt \
+                  --exclude=/media \
+                  --exclude=/tmp \
+                  --exclude=/var/lib/docker \
+                  -czf runner-rootfs.tar.gz /
+            - uses: actions/upload-artifact@v4
+              with:
+                name: runner-rootfs
+                path: runner-rootfs.tar.gz
