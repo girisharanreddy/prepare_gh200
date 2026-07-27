@@ -1,13 +1,12 @@
 name: GitHub Cache Workflow
 
 on:
-    push:
-        branches:
-            - github-cache
-    workflow_dispatch:
+  push:
+    branches:
+      - github-cache
+  workflow_dispatch:
 
 jobs:
-
   no-cache:
     name: Without Cache
     runs-on: ubuntu-latest
@@ -21,14 +20,21 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Remove Maven Repository
-        run: rm -rf ~/.m2/repository
+      - name: Remove Maven repository
+        run: |
+          rm -rf ~/.m2/repository
+          echo "Maven local repository cleared"
+          du -sh ~/.m2/repository || true
 
-      - name: Download Dependencies
-        run: mvn dependency:resolve
+      - name: Download dependencies without cache
+        run: |
+          echo "Starting dependency download without cache"
+          mvn -B dependency:go-offline
 
       - name: Build
-        run: mvn clean package -DskipTests
+        run: |
+          echo "Building project without cache"
+          mvn -B clean package -DskipTests
 
   with-cache:
     name: With GitHub Cache
@@ -43,14 +49,27 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Restore Cache
+      - name: Restore Maven cache
+        id: maven-cache
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-
 
-      - name: Download Dependencies
-        run: mvn dependency:resolve
+      - name: Show cache status
+        run: |
+          echo "Cache hit: ${{ steps.maven-cache.outputs.cache-hit }}"
+          echo "Cache key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}"
+          du -sh ~/.m2/repository || true
+
+      - name: Download dependencies with cache
+        run: |
+          echo "Restoring dependencies from cache when available"
+          mvn -B dependency:go-offline
 
       - name: Build
-        run: mvn clean package -DskipTests
+        run: |
+          echo "Building project with cache"
+          mvn -B clean package -DskipTests
