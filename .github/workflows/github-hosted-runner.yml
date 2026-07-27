@@ -3,7 +3,7 @@ name: Self Hosted Runner Workflow
 on:
     push:
         branches:
-            - self-hosted-runner
+            - github-hosted-runner
     
     workflow_dispatch:
 
