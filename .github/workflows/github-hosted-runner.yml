@@ -27,3 +27,10 @@ jobs:
             - name: Print file in runner workspace
               run: |
                 ls -l ${{ runner.workspace }}
+            - name: Print files in runner temp directory
+              run: |
+                ls -l ${{ runner.temp }}
+            - name: Print files in prepare_gh200 repository
+              run: |
+                cd prepare_gh200
+                ls -lrt
