@@ -1,0 +1,29 @@
+name: Self Hosted Runner Workflow
+
+on:
+    push:
+        branches:
+            - self-hosted-runner
+    
+    workflow_dispatch:
+
+jobs:
+    Runner_Information:
+        name: Runner Information
+        runs-on: ubuntu-latest
+        steps:
+            - name: print runner machine info
+              run: echo "${{ toJson(runner) }}"
+            - name: Download Sample File
+              run: |
+                curl -l https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf --output dummy.pdf
+            - name: Check if the file exists
+              run: |
+                if [ -f "dummy.pdf" ]; then
+                  echo "File exists."
+                else
+                  echo "File does not exist."
+                fi
+            - name: Print file in runner workspace
+              run: |
+                ls -l ${{ runner.workspace }}
