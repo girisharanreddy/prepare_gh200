@@ -1,0 +1,56 @@
+name: GitHub Cache Workflow
+
+on:
+    push:
+        branches:
+            - github-cache
+    workflow_dispatch:
+
+jobs:
+
+  no-cache:
+    name: Without Cache
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Remove Maven Repository
+        run: rm -rf ~/.m2/repository
+
+      - name: Download Dependencies
+        run: mvn dependency:resolve
+
+      - name: Build
+        run: mvn clean package -DskipTests
+
+  with-cache:
+    name: With GitHub Cache
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Restore Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+
+      - name: Download Dependencies
+        run: mvn dependency:resolve
+
+      - name: Build
+        run: mvn clean package -DskipTests
