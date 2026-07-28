@@ -10,4 +10,8 @@ public class HelloController {
     public String hello() {
         return "Hello from prepare_gh200 Spring Boot app!";
     }
+    @GetMapping("/health")
+    public String health() {
+        return "OK";
+    }
 }
