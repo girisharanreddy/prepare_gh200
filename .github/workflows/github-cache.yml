@@ -47,6 +47,16 @@ jobs:
               run: |
                 echo "Cache hit: ${{ steps.maven-cache.outputs.cache-hit }}"
                 du -sh ~/.m2/repository || true
+            - name: Check Maven Cache Contents
+              run: |
+                echo "Maven repository size"
+                du -sh ~/.m2/repository
+
+                echo "Spring Boot Plugin"
+                ls ~/.m2/repository/org/springframework/boot || true
+
+                echo "Maven plugins"
+                ls ~/.m2/repository/org/apache/maven/plugins || true
             - name: Build Code
               run: mvn clean package -Dmaven.test.skip=true
             - name: Get Maven artifact name
