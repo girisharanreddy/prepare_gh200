@@ -17,5 +17,15 @@ jobs:
               run: mvn dependency:go-offline
             - name: Check Maven Cache Folder Contents
               run: |
+                echo "Checking Maven Cache Folder Size"
+                du -sh ~/.m2/repository
                 echo "Checking Maven Cache Folder Contents"
                 ls -la ~/.m2/repository
+            - name: Add Maven .m2 folder to GitHub Cache
+              uses: actions/cache@v3
+              with:
+                path: ~/.m2/repository
+                key: maven-cache-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+            - name: Print Cache Key
+              run: |
+                echo "Cache Key: maven-cache-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}"
