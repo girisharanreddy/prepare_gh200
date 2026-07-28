@@ -19,7 +19,7 @@ jobs:
                   path: ~/.m2/repository
                   key: maven-cache-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
             - name: download dependencies
-              run: mvn dependency:go-offline
+              run: mvn clean package -DskipTests
             - name: Check Maven Cache Folder Contents
               run: |
                   echo "Checking Maven Cache Folder Size"
