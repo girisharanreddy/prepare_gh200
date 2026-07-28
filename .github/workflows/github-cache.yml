@@ -1,10 +1,10 @@
 name: GitHub Cache Workflow
 
 on:
-  push:
-    branches:
-      - github-cache
-  workflow_dispatch:
+    push:
+        branches:
+            - github-cache
+    workflow_dispatch:
 
 jobs:
     check-m2-folder-contents:
@@ -13,19 +13,43 @@ jobs:
         steps:
             - name: checkout code
               uses: actions/checkout@v4
+            - name: Restore Maven Cache
+              uses: actions/cache@v3
+              with:
+                  path: ~/.m2/repository
+                  key: maven-cache-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
             - name: download dependencies
               run: mvn dependency:go-offline
             - name: Check Maven Cache Folder Contents
               run: |
-                echo "Checking Maven Cache Folder Size"
-                du -sh ~/.m2/repository
-                echo "Checking Maven Cache Folder Contents"
-                ls -la ~/.m2/repository
-            - name: Add Maven .m2 folder to GitHub Cache
-              uses: actions/cache@v3
-              with:
-                path: ~/.m2/repository
-                key: maven-cache-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+                  echo "Checking Maven Cache Folder Size"
+                  du -sh ~/.m2/repository
+                  echo "Checking Maven Cache Folder Contents"
+                  ls -la ~/.m2/repository
             - name: Print Cache Key
               run: |
-                echo "Cache Key: maven-cache-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}"
+                  echo "Cache Key: maven-cache-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}"
+
+    Build_Code:
+        name: Build Code
+        runs-on: ubuntu-latest
+        needs: check-m2-folder-contents
+        steps:
+            - name: checkout code
+              uses: actions/checkout@v4
+            - name: Restore Maven Cache
+              uses: actions/cache@v3
+              with:
+                  path: ~/.m2/repository
+                  key: maven-cache-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+            - name: Build Code
+              run: mvn clean package
+            - name: Get Maven artifact name
+              id: maven
+              run: |
+                echo "jar-name=$(mvn help:evaluate -Dexpression=project.build.finalName -q -DforceStdout).jar" >> $GITHUB_OUTPUT
+            - name: Upload JAR Artifact
+              uses: actions/upload-artifact@v4
+              with:
+                name: ${{ steps.maven.outputs.jar-name }}
+                path: target/${{ steps.maven.outputs.jar-name }}
