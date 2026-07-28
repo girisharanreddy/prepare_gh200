@@ -18,8 +18,7 @@ jobs:
               with:
                   path: ~/.m2/repository
                   key: maven-cache-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
-            - name: download dependencies
-              run: mvn clean package -DskipTests
+            
             - name: Check Maven Cache Folder Contents
               run: |
                   echo "Checking Maven Cache Folder Size"
@@ -49,6 +48,8 @@ jobs:
 
                   echo "========== Istack =========="
                   ls -R ~/.m2/repository/com/sun/istack || true
+            - name: download dependencies offline
+              run: mvn clean package -Dmaven.test.skip=true -o
 
     Build_Code:
         name: Build Code
