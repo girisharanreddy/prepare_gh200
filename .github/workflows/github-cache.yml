@@ -18,4 +18,4 @@ jobs:
             - name: Check Maven Cache Folder Contents
               run: |
                 echo "Checking Maven Cache Folder Contents"
-                ls -l ${{ runner.temp }}/_github_home/.m2/repository
+                ls -la ~/.m2/repository
