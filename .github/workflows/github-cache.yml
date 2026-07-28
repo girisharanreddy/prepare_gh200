@@ -16,6 +16,6 @@ jobs:
             - name: download dependencies
               run: mvn dependency:go-offline
             - name: Check Maven Cache Folder Contents
-              run: 
+              run: |
                 echo "Checking Maven Cache Folder Contents"
                 ls -l ${{ runner.temp }}/_github_home/.m2/repository
