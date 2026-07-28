@@ -30,6 +30,26 @@ jobs:
               run: |
                   echo "Cache Key: maven-cache-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}"
 
+            - name: Verify Cached Dependencies
+              run: |
+                  echo "========== JBoss Logging =========="
+                  ls -R ~/.m2/repository/org/jboss/logging || true
+
+                  echo "========== Byte Buddy =========="
+                  ls -R ~/.m2/repository/net/bytebuddy || true
+
+                  echo "========== Classmate =========="
+                  ls -R ~/.m2/repository/com/fasterxml/classmate || true
+
+                  echo "========== JAXB =========="
+                  ls -R ~/.m2/repository/org/glassfish/jaxb || true
+
+                  echo "========== Spring ORM =========="
+                  ls -R ~/.m2/repository/org/springframework/spring-orm || true
+
+                  echo "========== Istack =========="
+                  ls -R ~/.m2/repository/com/sun/istack || true
+
     Build_Code:
         name: Build Code
         runs-on: ubuntu-latest
@@ -45,26 +65,26 @@ jobs:
                   key: maven-cache-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
             - name: Show Cache Status
               run: |
-                echo "Cache hit: ${{ steps.maven-cache.outputs.cache-hit }}"
-                du -sh ~/.m2/repository || true
+                  echo "Cache hit: ${{ steps.maven-cache.outputs.cache-hit }}"
+                  du -sh ~/.m2/repository || true
             - name: Check Maven Cache Contents
               run: |
-                echo "Maven repository size"
-                du -sh ~/.m2/repository
+                  echo "Maven repository size"
+                  du -sh ~/.m2/repository
 
-                echo "Spring Boot Plugin"
-                ls ~/.m2/repository/org/springframework/boot || true
+                  echo "Spring Boot Plugin"
+                  ls ~/.m2/repository/org/springframework/boot || true
 
-                echo "Maven plugins"
-                ls ~/.m2/repository/org/apache/maven/plugins || true
+                  echo "Maven plugins"
+                  ls ~/.m2/repository/org/apache/maven/plugins || true
             - name: Build Code
               run: mvn clean package -Dmaven.test.skip=true
             - name: Get Maven artifact name
               id: maven
               run: |
-                echo "jar-name=$(mvn help:evaluate -Dexpression=project.build.finalName -q -DforceStdout).jar" >> $GITHUB_OUTPUT
+                  echo "jar-name=$(mvn help:evaluate -Dexpression=project.build.finalName -q -DforceStdout).jar" >> $GITHUB_OUTPUT
             - name: Upload JAR Artifact
               uses: actions/upload-artifact@v4
               with:
-                name: ${{ steps.maven.outputs.jar-name }}
-                path: target/${{ steps.maven.outputs.jar-name }}
+                  name: ${{ steps.maven.outputs.jar-name }}
+                  path: target/${{ steps.maven.outputs.jar-name }}
