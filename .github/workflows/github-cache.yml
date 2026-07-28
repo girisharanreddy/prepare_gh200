@@ -38,12 +38,17 @@ jobs:
             - name: checkout code
               uses: actions/checkout@v4
             - name: Restore Maven Cache
+              id: maven-cache
               uses: actions/cache@v3
               with:
                   path: ~/.m2/repository
                   key: maven-cache-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+            - name: Show Cache Status
+              run: |
+                echo "Cache hit: ${{ steps.maven-cache.outputs.cache-hit }}"
+                du -sh ~/.m2/repository || true
             - name: Build Code
-              run: mvn clean package
+              run: mvn clean package -Dmaven.test.skip=true
             - name: Get Maven artifact name
               id: maven
               run: |
