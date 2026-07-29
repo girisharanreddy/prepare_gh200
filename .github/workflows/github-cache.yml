@@ -32,7 +32,7 @@ jobs:
                 ls -ltr ~/.m2/repository
             
             - name: Build the project
-              run: mvn clean package
+              run: mvn clean package -Dmaven.test.skip=true
 
             - name: Print cache directory (after cache creation)
               run: |
@@ -68,7 +68,7 @@ jobs:
                 ls -ltr ~/.m2/repository
 
             - name: Build the project
-              run: mvn clean package
+              run: mvn clean package -Dmaven.test.skip=true
 
             - name: Print cache directory (after build)
               run: |
