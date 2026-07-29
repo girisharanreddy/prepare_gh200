@@ -27,6 +27,7 @@ jobs:
                 key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
             
             - name: Print cache directory (before cache creation)
+              continue-on-error: true
               run: |
                 ls -ltr ~/.m2/repository
             
@@ -51,6 +52,7 @@ jobs:
                   java-version: "17"
             
             - name: check cache directory (before cache restore)
+              continue-on-error: true
               run: |
                 ls -ltr ~/.m2/repository
 
