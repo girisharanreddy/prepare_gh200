@@ -1,0 +1,30 @@
+1. A workflow reports Cache hit: true, but Maven still downloads dozens of dependencies. What could be happening?
+2. Your cache key includes hashFiles('**/pom.xml'). One dependency version changes. What happens to the existing cache?
+3. Two jobs run in parallel, and both try to create the same cache. Which cache is ultimately saved?
+4. A workflow restores a cache successfully, but the runner is canceled before the job finishes. Will the updated cache be available in the next run?
+5. Your repository uses ubuntu-latest and windows-latest. Should they share the same cache? Why?
+6. A developer accidentally changes the cache path from ~/.m2/repository to ~/.m2. What issues could this cause?
+7. A cache exists, but GitHub restores an older cache instead of the newest one. Under what circumstances can this happen?
+8. Your company has self-hosted runners with all Maven dependencies already installed. Would you still use actions/cache?
+9. A feature branch cannot find a cache even though main has one. What could explain this?
+10. Your cache key is maven-${{ github.sha }}. Why is this a poor design?
+11. A workflow uses both cache and artifacts. How do you decide which one to use for a given file?
+12. A Docker container is used for the job. Where is the cache restored, and how does the container access it?
+13. A cache restore succeeds, but the cache size is much smaller than expected. What are the possible reasons?
+14. You remove several dependencies from pom.xml. What happens to the next cache that gets saved?
+15. Your workflow contains restore-keys. When are they used?
+16. Can two different repositories share the same GitHub Actions cache?
+17. Why doesn't GitHub allow a workflow to modify an existing cache after it has been created?
+18. A build completes successfully, but no cache is saved. What conditions would cause this?
+19. Your workflow has a cache hit, yet the overall build time remains almost unchanged. How would you investigate?
+20. A cache key never changes, even when dependencies change. What problems could this create?
+21. Can a cache created on Linux be restored on Windows? Why or why not?
+22. If multiple cache entries match a restore-key, how does GitHub decide which one to restore?
+23. What happens if the cache size exceeds GitHub's cache limits?
+24. Your organization has hundreds of workflow runs every hour. What operational problems would you expect if caching were disabled?
+25. A workflow has a cache miss on every run, even though the key never changes. What would you check first?
+26. Why does actions/cache save the cache only after the job completes successfully?
+27. Can a job restore a cache that another parallel job creates during the same workflow run?
+28. Why is caching dependencies generally recommended instead of caching the entire project workspace?
+29. If you update only your application source code and not pom.xml, should the Maven cache change?
+30. In a real production CI pipeline, what metrics would you monitor to determine whether caching is actually providing value?
