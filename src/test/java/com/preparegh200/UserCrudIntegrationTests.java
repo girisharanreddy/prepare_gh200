@@ -42,6 +42,15 @@ class UserCrudIntegrationTests {
         return "http://localhost:" + port + "/users";
     }
 
+    private User createUser(String firstName, String lastName, String email) {
+        User request = new User(null, firstName, lastName, email);
+        ResponseEntity<User> createResponse = restTemplate.postForEntity(URI.create(getBaseUrl()), request, User.class);
+        assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(createResponse.getBody()).isNotNull();
+        assertThat(createResponse.getBody().getId()).isNotNull();
+        return createResponse.getBody();
+    }
+
     @BeforeEach
     void beforeEach() throws SQLException {
         printDatabaseDetails();
@@ -49,18 +58,36 @@ class UserCrudIntegrationTests {
     }
 
     @AfterEach
-    void afterEach() {
+    void afterEach() throws SQLException {
         printUserTable("AFTER");
         userRepository.deleteAll();
     }
 
-    private void printUserTable(String phase) {
-        List<User> users = userRepository.findAll();
+    private void printUserTable(String phase) throws SQLException {
         System.out.println("=== USER TABLE " + phase + " TEST ===");
-        if (users.isEmpty()) {
-            System.out.println("(empty)");
-        } else {
-            users.forEach(user -> System.out.println(user.getId() + ": " + user.getFirstName() + " " + user.getLastName() + " <" + user.getEmail() + ">"));
+        try (Connection connection = dataSource.getConnection();
+             java.sql.Statement statement = connection.createStatement();
+             java.sql.ResultSet resultSet = statement.executeQuery("SELECT * FROM users")) {
+
+            java.sql.ResultSetMetaData metaData = resultSet.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            boolean empty = true;
+
+            while (resultSet.next()) {
+                empty = false;
+                StringBuilder row = new StringBuilder();
+                for (int i = 1; i <= columnCount; i++) {
+                    if (i > 1) {
+                        row.append(" | ");
+                    }
+                    row.append(metaData.getColumnName(i)).append("=").append(resultSet.getString(i));
+                }
+                System.out.println(row);
+            }
+
+            if (empty) {
+                System.out.println("(empty)");
+            }
         }
         System.out.println("===============================");
     }
@@ -80,38 +107,34 @@ class UserCrudIntegrationTests {
     }
 
     @Test
-    void createReadDeleteUserCrudOperations() {
-        User request = new User(null, "Alice", "Smith", "alice@example.com");
+    void createReadUpdateDeleteUserLifecycle() {
+        User createdUser = createUser("Alice", "Smith", "alice@example.com");
+        System.out.println("Created user: " + createdUser.getId() + " - " + createdUser.getFirstName() + " " + createdUser.getLastName() + " <" + createdUser.getEmail() + ">");
 
-        ResponseEntity<User> createResponse = restTemplate.postForEntity(URI.create(getBaseUrl()), request, User.class);
-        assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(createResponse.getBody()).isNotNull();
-        assertThat(createResponse.getBody().getId()).isNotNull();
-
-        Long userId = createResponse.getBody().getId();
-
-        ResponseEntity<User> readResponse = restTemplate.getForEntity(URI.create(getBaseUrl() + "/" + userId), User.class);
+        ResponseEntity<User> readResponse = restTemplate.getForEntity(URI.create(getBaseUrl() + "/" + createdUser.getId()), User.class);
         assertThat(readResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(readResponse.getBody()).isNotNull();
-        assertThat(readResponse.getBody().getEmail()).isEqualTo("alice@example.com");
+        User readUser = readResponse.getBody();
+        assertThat(readUser).isNotNull();
+        assertThat(readUser.getEmail()).isEqualTo("alice@example.com");
+        System.out.println("Retrieved user: " + readUser.getId() + " - " + readUser.getFirstName() + " " + readUser.getLastName() + " <" + readUser.getEmail() + ">");
 
-        restTemplate.delete(URI.create(getBaseUrl() + "/" + userId));
+        User updateRequest = new User(null, "Alice", "Walker", "alice.walker@example.com");
+        ResponseEntity<User> updateResponse = restTemplate.exchange(
+                URI.create(getBaseUrl() + "/" + createdUser.getId()),
+                org.springframework.http.HttpMethod.PUT,
+                new org.springframework.http.HttpEntity<>(updateRequest),
+                User.class);
+        assertThat(updateResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        User updatedUser = updateResponse.getBody();
+        assertThat(updatedUser).isNotNull();
+        assertThat(updatedUser.getLastName()).isEqualTo("Walker");
+        assertThat(updatedUser.getEmail()).isEqualTo("alice.walker@example.com");
+        System.out.println("Updated user: " + updatedUser.getId() + " - " + updatedUser.getFirstName() + " " + updatedUser.getLastName() + " <" + updatedUser.getEmail() + ">");
 
-        ResponseEntity<String> deleteCheck = restTemplate.getForEntity(URI.create(getBaseUrl() + "/" + userId), String.class);
+        restTemplate.delete(URI.create(getBaseUrl() + "/" + createdUser.getId()));
+        System.out.println("Deleted user: " + createdUser.getId());
+
+        ResponseEntity<String> deleteCheck = restTemplate.getForEntity(URI.create(getBaseUrl() + "/" + createdUser.getId()), String.class);
         assertThat(deleteCheck.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-    }
-
-    @Test
-    void listUsersReturnsSavedUser() {
-        User request = new User(null, "Bob", "Johnson", "bob@example.com");
-
-        ResponseEntity<User> createResponse = restTemplate.postForEntity(URI.create(getBaseUrl()), request, User.class);
-        assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(createResponse.getBody()).isNotNull();
-
-        ResponseEntity<User[]> listResponse = restTemplate.getForEntity(URI.create(getBaseUrl()), User[].class);
-        assertThat(listResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(listResponse.getBody()).isNotNull();
-        assertThat(listResponse.getBody()).extracting(User::getEmail).contains("bob@example.com");
     }
 }

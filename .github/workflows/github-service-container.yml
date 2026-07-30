@@ -45,6 +45,8 @@ jobs:
       - name: Run Maven tests
         run: mvn -B -Dspring.profiles.active=test test
         env:
+          # GitHub Actions uses the MySQL service container by injecting these Spring env vars.
+          # application-test.properties will use them instead of local H2 defaults.
           SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/testdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
           SPRING_DATASOURCE_USERNAME: root
           SPRING_DATASOURCE_PASSWORD: password
