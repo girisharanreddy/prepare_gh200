@@ -2,7 +2,7 @@ package com.preparegh200;
 
 import com.preparegh200.model.User;
 import com.preparegh200.repository.UserRepository;
-import jakarta.sql.DataSource;
+import javax.sql.DataSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

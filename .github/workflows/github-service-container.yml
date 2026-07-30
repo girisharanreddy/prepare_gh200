@@ -48,3 +48,5 @@ jobs:
           SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/testdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
           SPRING_DATASOURCE_USERNAME: root
           SPRING_DATASOURCE_PASSWORD: password
+          SPRING_DATASOURCE_DRIVER: com.mysql.cj.jdbc.Driver
+          SPRING_JPA_DIALECT: org.hibernate.dialect.MySQL8Dialect
