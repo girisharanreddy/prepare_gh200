@@ -1,0 +1,50 @@
+name: GitHub Service Container Workflow
+
+on:
+  push:
+    branches:
+      - github-service-container
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: testdb
+        ports:
+          - 3306:3306
+        options: >
+          --health-cmd="mysqladmin ping -h localhost -P 3306 --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Wait for MySQL service
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y default-mysql-client
+          until mysqladmin ping -h 127.0.0.1 -P 3306 --silent; do
+            echo "Waiting for MySQL..."
+            sleep 5
+          done
+
+      - name: Run Maven tests
+        run: mvn -B -Dspring.profiles.active=test test
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/testdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: password
