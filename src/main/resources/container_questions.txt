@@ -1,0 +1,30 @@
+1 . Your workflow works normally on ubuntu-latest, but fails after adding a job container. What would you check first?
+2 . A Java build works on the runner, but after adding a container the Java version changes unexpectedly. Why?
+3 . Your container job runs docker --version and fails, but Docker works on the GitHub runner. Why?
+4 . A build inside a container creates target/app.jar, but upload-artifact says no files were found. What could be wrong?
+5 . ${{ github.workspace }} shows /home/runner/work/repo/repo, but pwd inside the container shows /__w/repo/repo. Why are they different?
+6 . A file created inside the container exists during the job but disappears after the workflow completes. Why?
+7 . You need to use files generated inside a container job in another job. How would you transfer them?
+8 . Maven cache fails with Path Validation Error: ~/.m2/repository does not exist. What would you investigate?
+9 . Your workflow uses container: image: maven:latest, and suddenly the build starts failing after a few weeks. Why?
+10. Your Docker image is 8GB, and every workflow spends several minutes downloading it. How would you optimize this?
+11. A custom Docker image works locally but fails when used in GitHub Actions. What would you check?
+12. Environment variables available on the runner are missing inside the container. Why?
+13. You set JAVA_HOME on the workflow, but Java is still not found inside the container. Why?
+14. You install a package using apt install in one workflow step, but the next step cannot find it. Why?
+15. Two different jobs use the same container image. Can they see each other's installed packages or filesystem changes?
+16. A container job fails with permission denied while creating files in the workspace. What could cause this?
+17. Your container runs with a non-root user, and GitHub Actions steps cannot write files. How would you fix it?
+18. A Python container is used, but python --version fails. What would you check?
+19. A file created in one step cannot be found in the next step inside the same container job. What could be wrong?
+20. You need one step to run on the GitHub runner and other steps inside a container. How would you design the workflow?
+21. A container workflow works on GitHub-hosted runners but fails on a self-hosted runner. What differences would you investigate?
+22. Your container build needs Docker commands to build another image. How would you handle Docker access?
+23. Your container image contains many unnecessary tools and vulnerabilities. How would you improve it?
+24. A security scanner reports vulnerabilities in your container image. What actions would you take?
+25. Your organization wants all repositories to use the same build environment. Would you use runner setup scripts or custom container images? Why?
+26. A workflow using a container cannot access a file created by a previous job. Why?
+27. Your container job is slower than the same build running directly on the runner. What could be the reasons?
+28. You changed the container image version, but your workflow still behaves as before. How would you troubleshoot?
+29. Your container job needs secrets and credentials. How are they passed into the container securely?
+30. Your workflow fails because a command available on ubuntu-latest is missing inside the container. Why does this happen?
