@@ -16,7 +16,7 @@ jobs:
 
       - name: Check workspace
         run: |
-          echo "GITHUB_WORKSPACE inside container: ${{ github.workspace }}"
+          echo "GITHUB_WORKSPACE : ${{ github.workspace }}"
           echo "Current directory: $(pwd)"
           ls -la
 
@@ -28,7 +28,6 @@ jobs:
         run: |
           echo "Checking workspace:"
           pwd
-          mount | grep workspace
           echo "Listing files in workspace:"
           ls -la /github/workspace
 
