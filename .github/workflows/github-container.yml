@@ -1,0 +1,74 @@
+name: GitHub Container Workflow
+
+on:
+  push:
+    branches:
+      - github-containers
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: maven:3.9.11-eclipse-temurin-17
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check workspace
+        run: |
+          echo "GITHUB_WORKSPACE inside container: ${{ github.workspace }}"
+          echo "Current directory: $(pwd)"
+          ls -la
+
+      - name: Create file inside container
+        run: |
+          echo "Created inside container" > container-file.txt
+
+      - name: Verify file exists
+        run: |
+          echo "Checking workspace:"
+          pwd
+          mount | grep workspace
+          echo "Listing files in workspace:"
+          ls -la /github/workspace
+
+      - name: Print runner variables
+        run: |
+          echo "===== Runner Information ====="
+          echo "Runner workspace: $RUNNER_WORKSPACE"
+          echo "GitHub workspace: $GITHUB_WORKSPACE"
+
+      - name: Restore Maven Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+            ${{ runner.os }}-
+
+      - name: Build application
+        run: mvn clean package
+
+      - name: Check build output
+        run: ls -la target
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-build
+          path: target/*.jar
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: java-build
+
+      - name: Check downloaded file
+        run: |
+          echo "Downloaded files:"
+          ls -la
