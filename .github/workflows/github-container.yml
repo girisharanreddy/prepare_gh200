@@ -26,6 +26,8 @@ jobs:
 
       - name: Verify file exists
         run: |
+          echo "checking runner files"
+          ls -lrta ${{ github.workspace }}
           echo "Checking workspace:"
           pwd
           echo "Listing files in workspace:"
