@@ -29,7 +29,7 @@ jobs:
           echo "Checking workspace:"
           pwd
           echo "Listing files in workspace:"
-          ls -la /github/workspace
+          ls -lart
 
       - name: Print runner variables
         run: |
