@@ -1,0 +1,21 @@
+name: Java Maven CI/CD Pipeline
+run-name: pipeline-${{ github.workflow }}-${{ github.ref_name }}-${{ github.run_number }}-${{ github.actor }}
+on:
+  push:
+    branches:
+      - composite-actions
+jobs:
+    Build_Job:
+        name: Build
+        runs-on: ubuntu-latest
+        steps:
+            - name: use cached-deps action to get and cache dependencies
+              uses: ./.github/workflows/actions/cached-deps
+              with:
+                java_distribution: temurin
+                java_version: 17
+            - name: Upload Artifact
+              uses: actions/upload-artifact@v3
+              with:
+                name: java-maven-artifact
+                path: target/*.jar

@@ -1,0 +1,25 @@
+name: 'Get and Cache Dependencies'
+description: 'Get the Dependencies and cache them for Java Maven Project'
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: ${{ inputs.java_distribution }}
+        java-version: ${{ inputs.java_version }}
+    - name: Cache Dependencies
+      id: cache-dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+          ${{ runner.os }}-
+    - name: Run Maven Build
+      if: steps.cache-dependencies.outputs.cache-hit != 'true'
+      run: mvn clean package
+      shell: bash
