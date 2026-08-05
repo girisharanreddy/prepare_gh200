@@ -3,8 +3,6 @@ description: 'Get the Dependencies and cache them for Java Maven Project'
 runs:
   using: 'composite'
   steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
     - name: Set up Java
       uses: actions/setup-java@v3
       with:
