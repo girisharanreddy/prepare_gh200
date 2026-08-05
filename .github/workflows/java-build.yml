@@ -10,7 +10,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: use cached-deps action to get and cache dependencies
-              uses: ./.github/workflows/actions/cached-deps
+              uses: ./.github/actions/cached-deps
               with:
                 java_distribution: temurin
                 java_version: 17
