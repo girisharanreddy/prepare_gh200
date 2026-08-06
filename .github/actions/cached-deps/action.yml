@@ -18,6 +18,6 @@ runs:
           ${{ runner.os }}-maven-
           ${{ runner.os }}-
     - name: Run Maven Build
-      if: steps.cache-dependencies.outputs.cache-hit != 'true'
+      # if: steps.cache-dependencies.outputs.cache-hit != 'true'
       run: mvn clean package
       shell: bash
