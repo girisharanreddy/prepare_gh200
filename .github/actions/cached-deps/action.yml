@@ -1,5 +1,18 @@
 name: 'Get and Cache Dependencies'
 description: 'Get the Dependencies and cache them for Java Maven Project'
+inputs:
+  java_distribution:
+    description: 'Java Distribution'
+    required: true
+    default: 'temurin'
+  java_version:
+    description: 'Java Version'
+    required: true
+    default: '17'
+  run_command:
+    description: 'Command to run after caching dependencies'
+    required: false
+    default: 'mvn clean package'
 runs:
   using: 'composite'
   steps:
@@ -19,5 +32,5 @@ runs:
           ${{ runner.os }}-
     - name: Run Maven Build
       # if: steps.cache-dependencies.outputs.cache-hit != 'true'
-      run: mvn clean package
+      run: ${{ inputs.run_command }}
       shell: bash

@@ -16,6 +16,7 @@ jobs:
               with:
                 java_distribution: temurin
                 java_version: 17
+                run_command: mvn clean package
             - name: Upload Artifact
               uses: actions/upload-artifact@v4
               with:
