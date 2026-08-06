@@ -13,10 +13,16 @@ jobs:
               uses: actions/checkout@v4
             - name: use cached-deps action to get and cache dependencies
               uses: ./.github/actions/cached-deps
+              id: use-cached-deps
               with:
                 java_distribution: temurin
                 java_version: 17
                 run_command: mvn clean package
+            - name: Print Outputs from cached-deps action
+              run: |
+                echo "Cache Hit: ${{ steps.use-cached-deps.outputs.cache-hit }}"
+                echo "Cache Key: ${{ steps.use-cached-deps.outputs.cache-key }}"
+                echo "Actor: ${{ steps.use-cached-deps.outputs.actor }}"
             - name: Upload Artifact
               uses: actions/upload-artifact@v4
               with:

@@ -13,6 +13,16 @@ inputs:
     description: 'Command to run after caching dependencies'
     required: false
     default: 'mvn clean package'
+outputs:
+  cache-hit:
+    description: 'Indicates whether the cache was hit or not'
+    value: ${{ steps.cache-dependencies.outputs.cache-hit }}
+  cache-key:
+    description: 'The cache key used for the dependencies'
+    value: ${{ steps.cache-dependencies.outputs.cache-key }}
+  actor:
+    description: 'The actor who triggered the workflow'
+    value: ${{ steps.set-actor.outputs.actor }}
 runs:
   using: 'composite'
   steps:
@@ -33,4 +43,8 @@ runs:
     - name: Run Maven Build
       # if: steps.cache-dependencies.outputs.cache-hit != 'true'
       run: ${{ inputs.run_command }}
+      shell: bash
+    - name: Set custom output for who ran the action
+      id: set-actor
+      run: echo "actor=${{ github.actor }}" >> $GITHUB_OUTPUT
       shell: bash
