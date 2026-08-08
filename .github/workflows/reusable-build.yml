@@ -1,4 +1,4 @@
-name: Using reusable workflow  with workflow_call
+name: workflow using workflow_call
 on:
     push:
         branches:
