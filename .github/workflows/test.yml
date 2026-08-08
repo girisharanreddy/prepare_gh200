@@ -1,7 +1,7 @@
 name: Test Workflow workflow_run
 on:
   workflow_run:
-    workflows: ["workflow using workflow_call"]
+    workflows: ["workflow using workflow_call", ".github/workflows/reusable-build.yml" ]
     types:
       - completed
 jobs:
