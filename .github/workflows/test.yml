@@ -1,0 +1,34 @@
+name: Test Workflow workflow_run
+on:
+  workflow_run:
+    workflows: ["workflow using workflow_call"]
+    types:
+      - completed
+jobs:
+    test-job:
+        name: Run Tests
+        runs-on: ubuntu-latest
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        steps:
+            - name: Show Triggering Workflow Run Details
+              run: |
+                echo "Triggered by workflow: ${{ github.event.workflow_run.name }}"
+                echo "Workflow run conclusion: ${{ github.event.workflow_run.conclusion }}"
+                echo "Workflow run ID: ${{ github.event.workflow_run.id }}"
+                echo "Workflow run URL: ${{ github.event.workflow_run.html_url }}"
+                echo "Commit SHA: ${{ github.event.workflow_run.head_sha }}"
+                echo "Commit Message: ${{ github.event.workflow_run.head_commit.message }}"
+            
+            - name: Checkout Repository
+              uses: actions/checkout@v3
+            
+            - name: Set up Java
+              uses: actions/setup-java@v3
+              with:
+                distribution: 'temurin'
+                java-version: '17'
+            
+            - name: Run Tests
+              run: |
+                echo "Running tests...""
+                mvn clean test
