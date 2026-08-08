@@ -1,0 +1,11 @@
+name: Using reusable workflow  with workflow_call
+on:
+    push:
+        branches:
+            - workflow-call
+jobs:
+    call-reusable-workflow:
+        uses: girisharanreddy/reusable-workflows/.github/workflows/reusable-build.yml@main
+        with:
+            java_version: "17"
+            build_command: "mvn clean package"
