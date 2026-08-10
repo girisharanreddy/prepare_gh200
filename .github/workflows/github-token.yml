@@ -1,0 +1,23 @@
+name: Git Hub Token Workflow
+on:
+    push:
+        branches:
+            - github-token
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hash token
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf '%s' "$GH_TOKEN" | sha256sum
+
+  job2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hash token
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf '%s' "$GH_TOKEN" | sha256sum
