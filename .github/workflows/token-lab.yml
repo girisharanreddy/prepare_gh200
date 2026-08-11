@@ -3,7 +3,7 @@ name: GITHUB_TOKEN Lab
 on:
   push:
     branches:
-      - token-lab
+      - github-token
 
 permissions:
   contents: write
