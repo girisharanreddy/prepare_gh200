@@ -6,7 +6,8 @@ on:
       - github-token
 
 permissions:
-  contents: write
+#   contents: write
+    contents: read
 
 jobs:
   test:
