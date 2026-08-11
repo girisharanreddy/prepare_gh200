@@ -1,0 +1,33 @@
+name: GITHUB_TOKEN Lab
+
+on:
+  push:
+    branches:
+      - token-lab
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Show token permission in action
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Creating a test branch..."
+
+          git clone https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git repo
+          cd repo
+
+          git config user.name "GitHub Actions Lab"
+          git config user.email "actions@github.com"
+
+          git checkout -b token-lab-test
+          echo "Created by GITHUB_TOKEN lab" > token-lab.txt
+
+          git add token-lab.txt
+          git commit -m "Token permission lab"
+          git push origin token-lab-test
