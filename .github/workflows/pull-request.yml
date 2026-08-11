@@ -1,0 +1,17 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run build
+        run: |
+          echo "Running build..."
+          mvn clean package
