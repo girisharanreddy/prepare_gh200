@@ -15,3 +15,13 @@ jobs:
         run: |
           echo "Running build..."
           mvn clean package
+      - name: Show checked out code
+        run: |
+          echo "Current ref:"
+          git rev-parse --abbrev-ref HEAD
+
+          echo "Current commit:"
+          git rev-parse HEAD
+
+          echo "Properties file content:"
+          cat src/main/resources/application.properties
