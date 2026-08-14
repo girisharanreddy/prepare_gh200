@@ -23,5 +23,5 @@ jobs:
           echo "Current commit:"
           git rev-parse HEAD
 
-          echo "Properties file content:"
-          cat src/main/resources/application.properties
+          echo "Files in the resources directory:"
+          ls -R src/main/resources/
