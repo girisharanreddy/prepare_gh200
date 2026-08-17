@@ -1,0 +1,27 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run build
+        run: |
+          echo "Running build..."
+          mvn clean package
+      - name: Show checked out code
+        run: |
+          echo "Current ref:"
+          git rev-parse --abbrev-ref HEAD
+
+          echo "Current commit:"
+          git rev-parse HEAD
+
+          echo "Files in the resources directory:"
+          ls -R src/main/resources/
