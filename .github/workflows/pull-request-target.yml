@@ -1,0 +1,19 @@
+name: Pull Request Target Workflow
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+    pull_request_target:
+
+jobs:
+  pull_request_target_job:
+    name: Pull Request Target Job
+    runs-on: ubuntu-latest
+    steps:
+        - name: Checkout code
+          uses: actions/checkout@v3
+
+        - name: Print Files in the Repository
+          run: |
+            ls -lR
