@@ -1,0 +1,322 @@
+1. Source vs target
+
+Know exactly which side is which:
+
+Docker Host                         Container
+/host/path  ───── bind mount ────>  /container/path
+  source                              target
+
+For example:
+
+docker run --mount \
+  type=bind,source=/opt/app,target=/app \
+  myimage
+  
+
+2. What happens when the target already contains files?
+
+This is very important.
+
+Suppose your image contains:
+
+/app
+├── app.jar
+├── config.yml
+└── scripts/
+
+Then you bind-mount:
+
+/host/data → /app
+
+The original /app contents from the image become hidden by the mounted directory.
+
+They are not deleted from the image; they are simply covered by the mount while the mount exists.
+
+
+
+3. Host changes ↔ container changes
+
+Understand the two-way nature of a normal bind mount:
+
+Host                         Container
+/host/app/file.txt  ↔       /app/file.txt
+
+Host changes → container sees them.
+
+Container changes → host sees them.
+
+This is why accidentally giving a container write access to an important host directory can be dangerous.
+
+
+4. Read-only mounts
+
+Learn how to make the mount read-only:
+
+docker run --mount \
+  type=bind,source=/host/config,target=/app/config,readonly \
+  myimage
+
+This is extremely useful for:
+
+Configuration
+Certificates
+Secrets
+Source code that the container should only read
+
+Think:
+
+Host
+  │
+  │ read-only
+  ↓
+Container
+
+The container can read but cannot modify the mounted content.
+
+
+5. File permissions
+
+This is one of the most important real-world issues.
+
+Docker does not magically change Linux ownership because you mounted a directory.
+
+For example:
+
+Host:
+UID 1000
+GID 1000
+
+Container process:
+
+UID 2000
+GID 2000
+
+The application may receive:
+
+Permission denied
+
+You should understand:
+
+UID/GID
+File ownership
+Read/write/execute permissions
+Running containers as root vs non-root
+Matching container and host user IDs
+
+
+6. Mounting individual files
+
+You don't have to mount an entire directory.
+
+You can mount:
+
+/host/config/app.yml
+
+to:
+
+/app/config/app.yml
+
+This can reduce what the container can access.
+
+
+7. Relative vs absolute paths
+
+Understand the difference between:
+
+-v ./config:/app/config
+
+and:
+
+-v /opt/myapp/config:/app/config
+
+Relative paths depend on where the Docker command/Compose configuration is evaluated.
+
+Absolute paths are much easier to reason about in production.
+
+
+
+8. -v vs --mount
+
+Know both.
+
+Short form:
+
+docker run -v /host/data:/app/data myimage
+
+Explicit form:
+
+docker run \
+  --mount type=bind,source=/host/data,target=/app/data \
+  myimage
+
+For learning and production configuration, I recommend becoming comfortable with --mount because the fields are explicit.
+
+
+9. What happens if the source doesn't exist?
+
+This is worth testing yourself.
+
+For example:
+
+docker run \
+  --mount type=bind,source=/does/not/exist,target=/app \
+  myimage
+
+Understand Docker's behavior and how it differs depending on the mount syntax/options you use.
+
+This becomes particularly important in CI/CD and production deployments.
+
+
+10. Bind mounts are tied to the Docker host
+
+This is a major limitation.
+
+Suppose:
+
+Server A
+/opt/myapp/data
+       │
+       ↓
+Container
+
+If you move the container to Server B:
+
+Server B
+???
+
+The bind mount does not magically move the data with the container.
+
+The source path must exist on the new Docker host.
+
+This matters a lot with:
+
+Kubernetes
+Docker Swarm
+CI/CD
+Auto-scaling
+Container migration
+
+
+
+11. Docker Desktop and Windows
+
+Since you use Windows, understand this distinction:
+
+Windows
+C:\Users\me\project
+       │
+       ↓
+Docker Desktop
+       │
+       ↓
+Linux container
+/app
+
+Docker Desktop provides the mechanism that makes your Windows filesystem available to Linux containers.
+
+So Windows bind mounts have additional considerations around:
+
+File sharing
+Performance
+File permissions
+Case sensitivity
+File-change detection
+
+
+12. SELinux / security contexts
+
+On Linux systems using SELinux, bind mounts can encounter security-context problems even when normal Unix permissions look correct.
+
+You should eventually understand mount options such as:
+
+:Z
+:z
+
+especially if you work with RHEL/CentOS/Fedora-based systems.
+
+
+13. Docker socket bind mount
+
+This is a very important security topic:
+
+-v /var/run/docker.sock:/var/run/docker.sock
+
+A container that can communicate with the Docker daemon through the socket can potentially control Docker on the host.
+
+This is very different from simply mounting application data.
+
+Understand why this is dangerous before using Docker socket mounts in CI/CD.
+
+
+14. Sharing one bind mount between containers
+
+Example:
+
+Host
+/opt/shared
+    │
+    ├──────────> Container A:/data
+    │
+    └──────────> Container B:/data
+
+Both containers can access the same host files.
+
+You should understand:
+
+Concurrent writes
+File locking
+Race conditions
+Permissions
+Read-only vs read-write access
+
+
+
+15. Bind mounts and CI/CD
+
+This is particularly relevant to your GitHub Actions learning.
+
+For example:
+
+GitHub Actions runner
+        │
+        │ workspace
+        ↓
+Docker container
+        │
+        └── /workspace
+
+If the container modifies /workspace, those changes can affect the runner's workspace.
+
+You should understand:
+
+Workspace sharing
+File ownership
+Cleanup
+Permissions
+Container running as root
+Build output sharing
+Security implications
+-------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------
+
+The most important ones
+
+If you want to prioritize, I'd rank them:
+
+⭐⭐⭐⭐⭐  Source ↔ target
+⭐⭐⭐⭐⭐  Mount hides existing container files
+⭐⭐⭐⭐⭐  Read-only vs read-write
+⭐⭐⭐⭐⭐  Linux UID/GID and permissions
+⭐⭐⭐⭐⭐  Host/container two-way changes
+⭐⭐⭐⭐⭐  Security implications
+⭐⭐⭐⭐⭐  Docker host dependency
+
+⭐⭐⭐⭐   File mounts
+⭐⭐⭐⭐   Relative vs absolute paths
+⭐⭐⭐⭐   Windows/Docker Desktop behavior
+⭐⭐⭐⭐   CI/CD workspace mounts
+⭐⭐⭐⭐   Sharing mounts between containers
+
+⭐⭐⭐     SELinux
+⭐⭐⭐     Docker socket
+⭐⭐⭐     Performance/file watching
